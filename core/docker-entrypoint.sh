@@ -38,6 +38,8 @@ if [ -f /var/lib/geth/data/prune-marker ]; then
 
   wget "$(curl -s https://api.github.com/repos/coredao-org/core-chain/releases/latest |grep browser_ |grep "${NETWORK}" |cut -d\" -f4)"
   unzip -o "${NETWORK}".zip
+  mv ${NETWORK}/* .
+  rm -rf ${NETWORK}
   rm "${NETWORK}".zip
 
 # Word splitting is desired for the command line parameters
@@ -120,6 +122,8 @@ else
   # the github API rate limit
   wget "$(curl -s https://api.github.com/repos/coredao-org/core-chain/releases/latest |grep browser_ |grep "${NETWORK}" |cut -d\" -f4)"
   unzip -o "${NETWORK}".zip
+  mv ${NETWORK}/* .
+  rm -rf ${NETWORK}
   rm "${NETWORK}".zip
 
   # Remove unwanted settings in config.toml
