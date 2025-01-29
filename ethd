@@ -19,7 +19,7 @@ version() {
 # Client versions
 # Adjust for your clients and how to check their version
   case "${__value}" in
-    *x.yml* )
+    *core.yml* )
       __docompose exec geth geth version
       ;;&
   esac
