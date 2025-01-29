@@ -1,0 +1,96 @@
+services:
+  geth:
+    restart: unless-stopped
+    build:
+      context: ./core
+      dockerfile: Dockerfile.binary
+      args:
+        - BUILD_TARGET=${GETH_BUILD_TARGET}
+    user: "10000"
+    stop_grace_period: 1m
+    image: core-geth:local
+    pull_policy: never
+    volumes:
+      - geth-data:/var/lib/geth/data
+      - ${ANCIENT_DIR:-.nada}:/var/lib/geth/ancient
+    ports:
+      - ${P2P_PORT}:${P2P_PORT}/tcp
+      - ${P2P_PORT}:${P2P_PORT}/udp
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - SNAPSHOT=${SNAPSHOT:-}
+      - EXTRA_STATIC_NODES=${EXTRA_STATIC_NODES:-}
+      - ANCIENT_DIR=${ANCIENT_DIR}
+      - NETWORK=${NETWORK}
+      - EXTRAS=${EXTRA_FLAGS:-}
+    entrypoint:
+      - docker-entrypoint.sh
+      - geth
+      - --config
+      - /var/lib/geth/config.toml
+      - --datadir
+      - /var/lib/geth/data
+      - --cache
+      - "8000"
+      - --port
+      - ${P2P_PORT:-30311}
+      - --metrics
+      - --metrics.addr
+      - 0.0.0.0
+      - --metrics.port
+      - "6060"
+      - --http
+      - --http.addr
+      - 0.0.0.0
+      - --http.vhosts=*
+      - --http.corsdomain=*
+      - --http.port
+      - ${RPC_PORT:-8545}
+      - --ws
+      - --ws.addr
+      - 0.0.0.0
+      - --ws.port
+      - ${WS_PORT:-8546}
+      - --ws.api
+      - web3,eth,net
+      - --history.transactions
+      - "0"
+      - --maxpeers
+      - ${MAX_PEERS}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.core.service=core
+      - traefik.http.routers.core.entrypoints=websecure
+      - traefik.http.routers.core.rule=Host(`${RPC_HOST}.${DOMAIN}`)
+      - traefik.http.routers.core.tls.certresolver=letsencrypt
+      - traefik.http.routers.corelb.service=core
+      - traefik.http.routers.corelb.entrypoints=websecure
+      - traefik.http.routers.corelb.rule=Host(`${RPC_LB}.${DOMAIN}`)
+      - traefik.http.routers.corelb.tls.certresolver=letsencrypt
+      - traefik.http.services.core.loadbalancer.server.port=${RPC_PORT}
+      - traefik.http.routers.corews.service=corews
+      - traefik.http.routers.corews.entrypoints=websecure
+      - traefik.http.routers.corews.rule=Host(`${WS_HOST}.${DOMAIN}`)
+      - traefik.http.routers.corews.tls.certresolver=letsencrypt
+      - traefik.http.routers.corewslb.service=corews
+      - traefik.http.routers.corewslb.entrypoints=websecure
+      - traefik.http.routers.corewslb.rule=Host(`${WS_LB}.${DOMAIN}`)
+      - traefik.http.routers.corewslb.tls.certresolver=letsencrypt
+      - traefik.http.services.corews.loadbalancer.server.port=${WS_PORT}
+      - metrics.scrape=true
+      - metrics.path=/debug/metrics/prometheus
+      - metrics.port=6060
+      - metrics.network=core-${NETWORK}
+
+  set-prune-marker:
+    profiles: ["tools"]
+    image: alpine:3
+    user: "10000:10000"
+    restart: "no"
+    volumes:
+      - geth-data:/var/lib/geth/data
+    entrypoint: ["/bin/sh","-c"]
+    command: /bin/sh
+
+volumes:
+  geth-data:
