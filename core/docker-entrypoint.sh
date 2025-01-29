@@ -105,11 +105,13 @@ else
       __geth_dir=$(dirname "$__found_path")
       __geth_dir=${__geth_dir%/chaindata}
       if [ "${__geth_dir}" = "${__base_dir}geth" ]; then
-         echo "Snapshot extracted into ${__geth_dir}/chaindata"
-      else
+        echo "Snapshot extracted into ${__geth_dir}/chaindata"
+      elif [ "${__geth_dir}" != "${__base_dir}" ]; then
         echo "Found a geth directory at ${__geth_dir}, moving it."
         mv "$__geth_dir" "$__base_dir"
         rm -rf "$__geth_dir"
+      else
+        echo "Geth directory already in the correct location. Skipping move."
       fi
     fi
     if [[ ! -d "${__data_dir}/geth/chaindata" ]]; then
