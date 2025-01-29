@@ -28,7 +28,9 @@ version() {
 
 __prep_conffiles() {
   # Adjust - this is where sample files would be copied to config files that are meant to be bind-mounted
-  return
+  if [ ! -f "ext-network.yml" ]; then
+    ${__as_owner} cp ext-network.yml.sample ext-network.yml
+  fi
 }
 
 
