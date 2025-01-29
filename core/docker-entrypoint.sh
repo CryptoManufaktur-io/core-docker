@@ -97,23 +97,6 @@ else
       rm -f "${filename}"
     fi
 
-    # try to find the directory
-    __search_dir="geth/chaindata"
-    __base_dir="${__data_dir}"
-    __found_path=$(find "$__base_dir" -type d -path "*/$__search_dir" -print -quit)
-    if [ -n "$__found_path" ]; then
-      __geth_dir=$(dirname "$__found_path")
-      __geth_dir=${__geth_dir%/chaindata}
-      if [ "${__geth_dir}" = "${__base_dir}geth" ]; then
-        echo "Snapshot extracted into ${__geth_dir}/chaindata"
-      elif [ "${__geth_dir}" != "${__base_dir}" ]; then
-        echo "Found a geth directory at ${__geth_dir}, moving it."
-        mv "$__geth_dir" "$__base_dir"
-        rm -rf "$__geth_dir"
-      else
-        echo "Geth directory already in the correct location. Skipping move."
-      fi
-    fi
     if [[ ! -d "${__data_dir}/geth/chaindata" ]]; then
       echo "Chaindata isn't in the expected location."
       echo "This snapshot likely won't work until the entrypoint script has been adjusted for it."
