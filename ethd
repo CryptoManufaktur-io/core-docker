@@ -28,9 +28,6 @@ version() {
 
 __prep_conffiles() {
   # Adjust - this is where sample files would be copied to config files that are meant to be bind-mounted
-  if [ ! -f "ext-network.yml" ]; then
-    ${__as_owner} cp ext-network.yml.sample ext-network.yml
-  fi
 }
 
 
@@ -41,7 +38,7 @@ __env_migrate() {
 
 # Adjust these vars to your project
   __all_vars=( COMPOSE_FILE NETWORK GETH_BUILD_TARGET EXTRA_FLAGS SNAPSHOT ANCIENT_DIR RPC_PORT WS_PORT P2P_PORT \
-            MAX_PEERS DOMAIN RPC_HOST RPC_LB WS_HOST WS_LB LOG_LEVEL SCRIPT_TAG )
+            MAX_PEERS DOMAIN RPC_HOST RPC_LB WS_HOST WS_LB LOG_LEVEL SCRIPT_TAG DOCKER_EXT_NETWORK )
   __old_vars=( )
   __new_vars=( )
 
